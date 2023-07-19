@@ -20,7 +20,6 @@ function App() {
   const [number, setNumber] = useState(0);
 
   const startTrivia = async () => {
-    console.log("inside start trivia");
     setLoading(true);
     setGameOver(false);
     try {
@@ -28,7 +27,6 @@ function App() {
         TOTAL_QUESTIONS,
         Difficulty.Easy
       );
-      console.log("new ", newQuestions);
       setQuestion(newQuestions);
       setScore(0);
       setUserAnswer([]);
@@ -39,9 +37,34 @@ function App() {
     }
   };
 
-  const checkAnswer = (e: React.MouseEvent<HTMLButtonElement>) => {};
+  const checkAnswer = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (!gameOver) {
+      //get user answer
+      const answer = e.currentTarget.value;
+      //check answer against correct option
+      const correct = question[number].correct_answer === answer;
+      //add score if answer is correct
+      if (correct) setScore((prev) => prev + 1);
+      // save answer in the array for user answers
+      const answerObject = {
+        question: question[number].question,
+        answer,
+        correct,
+        correctAnswer: question[number].correct_answer,
+      };
+      setUserAnswer((prev) => [...prev, answerObject]);
+    }
+  };
 
-  const nextQuestion = () => {};
+  const nextQuestion = () => {
+    //move onto the next question if not on the last question
+    const nextQuestion = number + 1;
+    if (nextQuestion === TOTAL_QUESTIONS) {
+      setGameOver(true);
+    } else {
+      setNumber(nextQuestion);
+    }
+  };
 
   return (
     <div className="App">
@@ -53,7 +76,7 @@ function App() {
       ) : (
         <></>
       )}
-      {!gameOver && <p className="score">Score: </p>}
+      {!gameOver && <p className="score">Score: {score}</p>}
       {loading && <p>Loading Questions ...</p>}
       {!loading && !gameOver && (
         <QuestionCards
